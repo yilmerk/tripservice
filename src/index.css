@@ -1,0 +1,96 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+@custom-variant dark (&:where(.dark, .dark *));
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#243d37;background:#fafbf8;font-synthesis:none;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}*{box-sizing:border-box}body{margin:0}button,input,a{-webkit-tap-highlight-color:transparent}button{cursor:pointer;transition:background .2s,transform .2s}button:disabled{cursor:wait;opacity:.6}button:focus-visible,a:focus-visible{outline:3px solid #cf9d58;outline-offset:4px}input:focus{outline:2px solid #357362;outline-offset:2px}button:not(:disabled):active{transform:translateY(1px)}.login-layout{min-height:100svh;display:grid;grid-template-columns:1fr 1fr}.story-panel{position:relative;overflow:hidden;min-height:820px;background:#365d53;color:white;padding:42px 48px;display:flex;flex-direction:column}.landscape{position:absolute;inset:0;background:linear-gradient(140deg,#81968b33,#15362f33),url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=85') center/cover}.story-shade{position:absolute;inset:0;background:linear-gradient(180deg,#102c2b38 0%,#142d2c20 30%,#102d2ac4 100%)}.story-top,.story-content,.story-bottom{position:relative;z-index:1}.story-top{display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{display:inline-flex;align-items:center;gap:9px;font-size:35px;font-weight:750;letter-spacing:-2px;text-decoration:none;color:inherit}.brand-icon{width:37px;height:37px;display:grid;place-items:center;letter-spacing:0}.brand-dot{color:#dbb47d;margin-left:-9px}.edition{font-size:8px;letter-spacing:1.8px;opacity:.8}.story-content{margin-top:auto;padding-top:110px}.eyebrow{font-size:10px;letter-spacing:2.3px;display:flex;align-items:center;gap:10px}.eyebrow>span{height:6px;width:6px;border-radius:50%;background:#ddbd8b}.story-content h1{font-family:Georgia,'Times New Roman',serif;font-size:clamp(64px,6.3vw,98px);font-weight:400;line-height:1.04;letter-spacing:-3.5px;margin:26px 0}.story-content h1 em{font-weight:400;color:#e9cfaa}.story-content>p{font-size:14px;line-height:1.9;color:#e7ebe5;margin:23px 0 40px}.destination{display:flex;align-items:center;gap:13px;padding:20px 0;border-top:1px solid #ffffff35;border-bottom:1px solid #ffffff35}.destination-icon{width:39px;height:39px;display:grid;place-items:center;border:1px solid #ffffff40;border-radius:50%}.destination strong{display:block;font-size:12px;font-weight:500}.destination div>span{display:block;font-size:9px;letter-spacing:1.1px;margin-top:5px;color:#d0d9d4}.destination-line{flex:1}.destination-number{font-size:10px;color:#e2e8e1;letter-spacing:2px}.story-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:38px;font-size:10px;color:#d6e0da}.form-panel{padding:35px 42px 25px;display:flex;flex-direction:column;background:#fafbf8}.form-header,.form-footer{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#87918a}.language{display:flex;gap:6px;align-items:center;color:#53695e}.auth-main{width:100%;max-width:370px;margin:auto;padding:38px 0}.welcome-icon{height:47px;width:47px;background:#edf1e9;border:1px solid #e2e7dc;color:#436c57;border-radius:14px;display:grid;place-items:center;margin-bottom:24px}.form-kicker{font-size:9px;letter-spacing:2px;color:#788574;font-weight:600}.auth-main h2{font-family:Georgia,'Times New Roman',serif;font-size:37px;font-weight:400;letter-spacing:-1.1px;margin:10px 0}.form-intro{font-size:12px;color:#859086;line-height:1.7;margin:0 0 26px}.tabs{display:flex;background:#edf0e9;border-radius:7px;padding:4px;gap:4px;margin-bottom:23px}.tabs button{width:50%;padding:10px;border:0;background:transparent;border-radius:5px;color:#7e887d;font-size:12px}.tabs button.active{background:#fff;color:#254f40;box-shadow:0 1px 5px #0000000c;font-weight:600}.google-button{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;border:1px solid #dfe4da;background:#fff;border-radius:7px;padding:13px;font-size:12px;color:#3c4a40}.google-button:hover{background:#f0f3ed}.divider{display:flex;gap:13px;align-items:center;margin:22px 0;color:#969c93;font-size:10px}.divider span{flex:1;height:1px;background:#e3e7de}form label{display:block;font-size:11px;font-weight:550;margin-bottom:18px}input{display:block;width:100%;margin-top:8px;padding:13px 14px;background:#fff;border:1px solid #dfe4da;border-radius:6px;font-size:12px;color:#2a4135}input::placeholder{color:#a5aca1}.password-field{position:relative}.password-field input{padding-right:45px}.password-field button{position:absolute;right:13px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:#919d90;padding:0}.primary-button{display:flex;width:100%;align-items:center;justify-content:center;gap:15px;background:#235744;border:1px solid #235744;color:white;border-radius:6px;padding:14px;font-size:12px;font-weight:550;margin-top:25px}.primary-button:hover{background:#163f30}.switch-mode{text-align:center;font-size:10px;color:#8b9589;margin-top:23px}.switch-mode button{color:#375e46;background:none;border:0;padding:0 0 0 4px;font-weight:650;font-size:10px}.trust{display:flex;justify-content:center;gap:21px;margin-top:34px;border-top:1px solid #e4e8df;padding-top:22px;font-size:9px;color:#8d9988}.trust span{display:flex;align-items:center;gap:5px}.trust svg{color:#6e8b5c}.form-footer{font-size:9px}.form-footer>span:last-child{display:flex;gap:5px;align-items:center}.error-message{background:#fff0eb;color:#a44229;border:1px solid #efd2c7;padding:12px;border-radius:6px;font-size:12px;line-height:1.6}.loading-screen{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px}.dashboard{max-width:1150px;margin:auto;padding:35px}.dashboard>header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #dce4d8;padding-bottom:24px}.dashboard header button{width:auto}.dashboard main{padding-top:65px}.dashboard h1{font-family:Georgia,serif;font-size:46px;margin:14px 0}.dashboard main>p{color:#7d8a7c}.dashboard-banner{margin-top:38px;background:#235744;color:#fff;padding:35px;border-radius:15px}.dashboard-banner h2{font-family:Georgia,serif;font-size:30px;margin:15px 0}.dashboard-banner p{color:#dce7d9;font-size:14px}.empty-trips{text-align:center;padding:65px 20px;color:#70846d}.empty-trips svg{margin:auto}.empty-trips h2{color:#294c3c;font-size:21px}.empty-trips p{font-size:14px}@media(min-width:1500px){.story-panel{padding:50px 65px}.auth-main{max-width:400px}.form-panel{padding:40px 55px}}@media(max-width:1000px){.edition{display:none}.story-panel{padding:35px 30px}.form-panel{padding:30px}.story-content h1{font-size:70px}}@media(max-width:700px){.login-layout{grid-template-columns:1fr}.story-panel{min-height:310px;padding:24px}.story-content{padding-top:26px}.story-content h1{font-size:48px;line-height:1.03;letter-spacing:-2px;margin:16px 0}.story-content h1 br{display:none}.story-content h1 br:after{content:' '}.story-content>p{font-size:12px;margin:15px 0 0}.story-top .brand{font-size:29px}.eyebrow{font-size:8px}.destination,.story-bottom{display:none}.form-panel{padding:25px}.auth-main{padding:30px 0}.welcome-icon{display:none}.form-header{font-size:10px}.auth-main h2{font-size:34px}.form-footer{margin-top:15px}.dashboard{padding:24px}.dashboard h1{font-size:35px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+
+/* Theme surfaces also cover existing semantic CSS components outside Tailwind layers. */
+:root { color-scheme: light; }
+html.dark { color-scheme: dark; background: #020617; }
+body, .form-panel, .planner-shell, .planner-sidebar, .planner-topbar,
+.info-card, .place-card, .planner-dialog, input, select, textarea,
+.google-button, .outline-button, .theme-toggle {
+  transition-property: background-color, color, border-color, box-shadow;
+  transition-duration: 200ms;
+}
+.header-actions { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.theme-toggle { white-space: nowrap; letter-spacing: 0; line-height: 1.5; }
+.dark body, .dark .form-panel, .dark .loading-screen, .dark .planner-shell {
+  @apply bg-slate-950 text-slate-100;
+}
+.dark .planner-sidebar, .dark .planner-topbar, .dark .info-card,
+.dark .place-card, .dark .planner-dialog, .dark .google-button, .dark .new-trip {
+  @apply bg-slate-900 text-slate-100 border-slate-700;
+}
+.dark .planner-topbar { @apply border-slate-800; }
+.dark .tabs, .dark .welcome-icon, .dark .sidebar-note, .dark .avatar,
+.dark .empty-compass, .dark .place-icon, .dark .card-icon,
+.dark .section-heading h2 > span {
+  @apply bg-slate-800 text-emerald-200 border-slate-700;
+}
+.dark .tabs button { @apply text-slate-400; }
+.dark .tabs button.active { @apply bg-slate-700 text-slate-100; }
+.dark input, .dark .planner-form textarea, .dark .planner-form select {
+  @apply bg-slate-950 text-slate-100 border-slate-700;
+}
+.dark input::placeholder, .dark textarea::placeholder { @apply text-slate-500; }
+.dark input:focus, .dark textarea:focus, .dark select:focus { outline-color: #6ee7b7; }
+.dark button:focus-visible, .dark a:focus-visible { outline-color: #a7f3d0; }
+.dark .form-intro, .dark .form-header, .dark .form-footer, .dark .switch-mode,
+.dark .trust, .dark .language, .dark .divider, .dark .form-kicker,
+.dark .sidebar-caption, .dark .sidebar-empty, .dark .sidebar-user div > span,
+.dark .planner-topbar, .dark .planner-topbar > span > span,
+.dark .city-heading p, .dark .info-card > p, .dark .hotel-entry > p,
+.dark .place-body p, .dark .place-meta, .dark .card-eyebrow,
+.dark .map-hint, .dark .map-legend, .dark .list-summary,
+.dark .planner-footer, .dark .field-hint, .dark .planner-empty p,
+.dark .hotel-dates, .dark .city-number, .dark .icon-button,
+.dark .sidebar-note p, .dark .sidebar-note strong, .dark .visit-button {
+  @apply text-slate-400;
+}
+.dark .city-heading h1, .dark .section-heading h2, .dark .hotel-entry h3,
+.dark .place-name h3, .dark .planner-empty h1, .dark .places-empty h3,
+.dark .planner-dialog h2, .dark .planner-form h3, .dark .hotel-dates strong {
+  @apply text-slate-100;
+}
+.dark .primary-button, .dark .solid-button { @apply bg-emerald-800 border-emerald-700 text-white; }
+.dark .primary-button:hover, .dark .solid-button:hover { @apply bg-emerald-700; }
+.dark .google-button:hover, .dark .new-trip:hover, .dark .outline-button:hover { @apply bg-slate-800; }
+.dark .outline-button, .dark .place-filters button { @apply bg-slate-900 border-slate-700 text-slate-300; }
+.dark .trip-choice, .dark .city-nav button { @apply text-slate-300; }
+.dark .trip-choice.selected, .dark .place-filters button.active { @apply bg-emerald-950 text-emerald-200 border-emerald-800; }
+.dark .city-nav button[aria-current=page], .dark .text-link, .dark .switch-mode button,
+.dark .trust svg, .dark .map-panel > .section-heading { @apply text-emerald-300; }
+.dark .selected-dot, .dark .online-dot { @apply bg-emerald-400; }
+.dark .city-heading h1 > span { @apply text-emerald-300; }
+.dark .visited { @apply bg-slate-900; }
+.dark .visited .place-name h3 { @apply text-emerald-200; }
+.dark .visit-button > svg { @apply border-slate-600; }
+.dark .visit-button.checked > svg { @apply bg-emerald-950 border-emerald-700 text-emerald-300; }
+.dark .place-icon.warm, .dark .card-icon.sand, .dark .card-icon.rose { @apply bg-amber-950 text-amber-200; }
+.dark .card-icon.blue { @apply bg-sky-950 text-sky-200; }
+.dark .places-empty, .dark .map-placeholder { @apply bg-slate-900 border-slate-700 text-slate-400; background-image: none; }
+.dark .map-placeholder h3 { @apply text-slate-200; }
+.dark .map-popup { @apply text-slate-800; }
+.dark .map-popup a { @apply text-emerald-800; }
+.dark .city-map { @apply border-slate-700; }
+.dark .error-message { @apply bg-red-950 text-red-200 border-red-800; }
+.dark .divider span, .dark .destination-line { @apply bg-slate-700; }
+.dark .trust, .dark .sidebar-user, .dark .city-nav, .dark .planner-footer,
+.dark .planner-form h3, .dark .hotel-entry + .hotel-entry { @apply border-slate-700; }
+.dark .planner-dialog::backdrop { background: #020617b3; }
+.dark .story-shade { background: linear-gradient(180deg, #02061755, #02061744 30%, #020617d9); }
+@media (max-width: 700px) {
+  .form-header { gap: 10px; flex-wrap: wrap; }
+  .header-actions { gap: 10px; }
+  .planner-topbar { height: auto; min-height: 60px; flex-wrap: wrap; padding-top: 12px; padding-bottom: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body, .form-panel, .planner-shell, .planner-sidebar, .planner-topbar, .info-card,
+  .place-card, .planner-dialog, input, select, textarea, .google-button,
+  .outline-button, .theme-toggle { transition: none; }
+}
+.dark .gm-style .gm-style-iw-c, .dark .gm-style .gm-style-iw-d { @apply bg-slate-900; }
+.dark .gm-style .gm-style-iw-tc::after { background: #0f172a; }
+.dark .map-popup { @apply text-slate-100; }
+.dark .map-popup a { @apply text-emerald-300; }
+.dark .gm-style-iw-chr button span { filter: invert(1); }
