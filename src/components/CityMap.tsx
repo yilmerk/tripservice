@@ -1,28 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
-import { GoogleMap, InfoWindowF, MarkerF, useJsApiLoader } from '@react-google-maps/api';
+import { GoogleMap, InfoWindowF, MarkerF } from '@react-google-maps/api';
 import { MapPin, Navigation } from 'lucide-react';
-import type { Coordinates, Destination } from '../types/trip';
-import { useTheme } from '../context/ThemeContext';
+import type { Coordinates, Destination, PlaceCategory } from '../types/trip';
+import { useGoogleMaps, useMapOptions } from '../hooks/useGoogleMaps';
 import { categoryLabels, directionsUrl, formatFee } from '../utils/places';
+import { pinAppearance, pinKinds } from '../utils/mapPins';
 
-type Pin = { id: string; name: string; location: Coordinates; address?: string; details: string; notes?: string; hotel: boolean };
-const mapOptions = { streetViewControl: false, mapTypeControl: false, fullscreenControl: true, maxZoom: 18, zoom: 5 };
+type Pin = { id: string; name: string; location: Coordinates; address?: string; category?: PlaceCategory; details: string; notes?: string; famousFor?: string; hotel: boolean; mustVisit: boolean };
 function LoadedMap({ apiKey, destination }: { apiKey: string; destination: Destination }) {
-  const { theme } = useTheme();
-  const options = useMemo(() => ({ ...mapOptions, styles: theme === 'dark' ? [
-    { elementType: 'geometry', stylers: [{ color: '#1e293b' }] },
-    { elementType: 'labels.text.fill', stylers: [{ color: '#cbd5e1' }] },
-    { elementType: 'labels.text.stroke', stylers: [{ color: '#0f172a' }] },
-    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0c2237' }] },
-    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#334155' }] },
-    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#16352f' }] },
-  ] : [] }), [theme]);
-  const { isLoaded, loadError } = useJsApiLoader({ id: 'rota-google-map', googleMapsApiKey: apiKey, language: 'tr', region: 'TR' });
+  const { isLoaded, loadError } = useGoogleMaps(apiKey);
+  const options = useMapOptions();
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const pins = useMemo<Pin[]>(() => [
-    ...(destination.hotels ?? []).flatMap((hotel, index) => hotel.location ? [{ id: `hotel-${index}`, name: hotel.name, location: hotel.location, address: hotel.address, notes: hotel.notes, details: 'Konaklama', hotel: true }] : []),
-    ...destination.places.flatMap(place => place.location ? [{ id: place.id, name: place.name, location: place.location, address: place.address, notes: place.notes, details: `${categoryLabels[place.category]} · ${formatFee(place.fee)}${place.mustVisit ? ' · Mutlaka gidilmeli' : ''}${place.visited ? ' · Ziyaret edildi' : ''}`, hotel: false }] : []),
+    ...(destination.hotels ?? []).flatMap((hotel, index) => hotel.location ? [{ id: `hotel-${index}`, name: hotel.name, location: hotel.location, address: hotel.address, notes: hotel.notes, famousFor: hotel.famousFor, details: 'Konaklama', hotel: true, mustVisit: false }] : []),
+    ...destination.places.flatMap(place => place.location ? [{ id: `place-${place.id}`, name: place.name, location: place.location, address: place.address, notes: place.notes, famousFor: place.famousFor, category: place.category, details: `${categoryLabels[place.category]} · ${formatFee(place.fee)}${place.mustVisit ? ' · Mutlaka gidilmeli' : ''}${place.visited ? ' · Ziyaret edildi' : ''}`, hotel: false, mustVisit: place.mustVisit }] : []),
   ], [destination]);
   const active = pins.find(pin => pin.id === activeId);
   useEffect(() => {
@@ -35,9 +27,9 @@ function LoadedMap({ apiKey, destination }: { apiKey: string; destination: Desti
   if (!isLoaded) return <div className="map-placeholder" role="status">Harita yükleniyor…</div>;
   const missing = (destination.hotels?.length ?? 0) + destination.places.length - pins.length;
   return <><GoogleMap mapContainerClassName="city-map" onLoad={setMap} onUnmount={() => setMap(null)} options={options}>
-    {pins.map(pin => <MarkerF key={pin.id} position={pin.location} title={pin.name} label={pin.hotel ? 'H' : undefined} onClick={() => setActiveId(pin.id)}/>)}
-    {active && <InfoWindowF position={active.location} onCloseClick={() => setActiveId(null)}><div className="map-popup"><strong>{active.name}</strong><p>{active.details}</p>{active.address && <p>{active.address}</p>}{active.notes && <p>{active.notes}</p>}<a href={directionsUrl(active.location)} target="_blank" rel="noopener noreferrer"><Navigation size={14}/> Google Maps Yol Tarifi Al</a></div></InfoWindowF>}
-  </GoogleMap>{!pins.length && <p className="map-hint">Otel veya mekana koordinat eklediğinde haritada görünecek.</p>}{missing > 0 && <p className="map-hint">{missing} kaydın koordinatı eksik; haritada yalnızca konumu olan kayıtlar gösteriliyor.</p>}<div className="map-legend"><span>H · Otel</span><span>● Mekanlar</span><span>{pins.length} konum</span></div></>;
+    {pins.map(pin => <MarkerF key={pin.id} position={pin.location} title={`${pin.name} — ${pinAppearance(pin.hotel, pin.mustVisit, pin.category).label}`} icon={pinAppearance(pin.hotel, pin.mustVisit, pin.category).icon} onClick={() => setActiveId(pin.id)}/>)}
+    {active && <InfoWindowF position={active.location} onCloseClick={() => setActiveId(null)}><div className="map-popup"><strong>{active.name}</strong><p>{active.details}</p>{active.famousFor ? <p><b>Neyiyle meşhur?</b> {active.famousFor}</p> : <p>Meşhur olduğu özellik henüz eklenmedi.</p>}{active.address && <p>{active.address}</p>}{active.notes && <p>{active.notes}</p>}<a href={directionsUrl(active.location)} target="_blank" rel="noopener noreferrer"><Navigation size={14}/> Google Maps'te Yol Tarifi Al</a></div></InfoWindowF>}
+  </GoogleMap>{!pins.length && <p className="map-hint">Otel veya mekan formunda haritadan bir konum seçerek ilk pinini ekle.</p>}{missing > 0 && <p className="map-hint">{missing} kaydın koordinatı eksik; konum eklemek için kaydı düzenleyebilirsin.</p>}<div className="map-legend">{Object.entries(pinKinds).filter(([key]) => key !== 'food-and-drink').map(([key, kind]) => <span key={key}>{kind.glyph} {kind.label}</span>)}<span>{pins.length} konum</span></div></>;
 }
 export default function CityMap({ destination }: { destination: Destination }) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;

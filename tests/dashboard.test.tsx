@@ -2,7 +2,7 @@
 import { beforeEach, afterEach, expect, it, vi } from 'vitest';
 import { cleanup, render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-const mocks = vi.hoisted(() => ({ mark: vi.fn(), addPlace: vi.fn(), update: vi.fn(), unsubscribe: vi.fn() }));
+const mocks = vi.hoisted(() => ({ mark: vi.fn(), addPlace: vi.fn(), update: vi.fn(), unsubscribe: vi.fn(), updatePlace: vi.fn() }));
 vi.mock('../src/context/AuthContext', () => ({ useAuth: () => ({ user: { uid: 'alice', displayName: 'Ada', email: 'ada@example.com' }, logout: vi.fn() }) }));
 vi.mock('../src/services/tripService', () => ({
   subscribeTrips: (_uid: string, next: (trips: unknown[]) => void) => { next([{ id: 'trip-1', title: 'İtalya', destinations: [
@@ -12,7 +12,7 @@ vi.mock('../src/services/tripService', () => ({
     ] },
     { id: 'florence', city: 'Floransa', country: 'İtalya', places: [] },
   ] }]); return mocks.unsubscribe; },
-  markPlaceVisited: mocks.mark, addPlace: mocks.addPlace, updateDestination: mocks.update,
+  markPlaceVisited: mocks.mark, addPlace: mocks.addPlace, updateDestination: mocks.update, updatePlace: mocks.updatePlace,
   createTrip: vi.fn(), addDestination: vi.fn(),
 }));
 vi.mock('../src/components/CityMap', () => ({ default: () => <div>Şehir haritası</div> }));
@@ -66,4 +66,13 @@ it('keeps the editor open and displays a save failure', async () => {
   await user.click(screen.getByRole('button', { name: 'Mekanı rotama ekle' }));
   expect(await screen.findByRole('alert')).toHaveProperty('textContent', 'Kayıt başarısız');
   expect(screen.getByRole('dialog')).toBeTruthy();
+});
+
+it('opens and saves an existing place without losing its category', async () => {
+  const user = userEvent.setup(); render(<ThemeProvider><Dashboard/></ThemeProvider>);
+  await user.click(await screen.findByRole('button', { name: 'Roma Kahve: düzenle' }));
+  expect((screen.getByLabelText('Mekan adı') as HTMLInputElement).value).toBe('Roma Kahve');
+  await user.type(screen.getByLabelText('Neyiyle meşhur?'), 'Espresso');
+  await user.click(screen.getByRole('button', { name: 'Değişiklikleri kaydet' }));
+  await waitFor(() => expect(mocks.updatePlace).toHaveBeenCalledWith('alice', 'trip-1', 'rome', 'cafe', expect.objectContaining({ category: 'coffee', famousFor: 'Espresso' })));
 });

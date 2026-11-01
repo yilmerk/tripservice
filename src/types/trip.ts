@@ -10,6 +10,7 @@ export interface Hotel {
   checkOut?: string;
   reservationCode?: string;
   notes?: string;
+  famousFor?: string;
 }
 export type PlaceCategory = 'attraction' | 'museum' | 'food-and-drink' | 'food' | 'coffee' | 'dessert' | 'other';
 export interface PlaceInput {
@@ -18,6 +19,7 @@ export interface PlaceInput {
   category: PlaceCategory;
   address?: string;
   notes?: string;
+  famousFor?: string;
   fee?: { amount: number; currency: string }; // ISO 4217, e.g. TRY, EUR
   mustVisit: boolean;
   visited: boolean;

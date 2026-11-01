@@ -86,11 +86,13 @@ Mekan formu Müze, Gezilecek Yer, Yemek, Kahve ve Tatlı kategorilerini, isteğe
 
 Harita için:
 
-1. Google Cloud projenizde faturalandırmayı ve **Maps JavaScript API** hizmetini etkinleştirin.
-2. Tarayıcı API anahtarı oluşturup HTTP referrer kısıtlarını yerel geliştirme ve yayın alan adınıza göre ayarlayın; API kullanımını Maps JavaScript API ile sınırlayın.
+1. Google Cloud projenizde faturalandırmayı ve **Maps JavaScript API**, **Places API (New)**, **Geocoding API** hizmetlerini etkinleştirin.
+2. Tarayıcı API anahtarı oluşturup HTTP referrer kısıtlarını yerel geliştirme ve yayın alan adınıza göre ayarlayın; anahtarın API kısıtlarında Maps JavaScript API, Places API (New) ve Geocoding API hizmetlerine izin verin.
 3. `.env.local` içine `VITE_GOOGLE_MAPS_API_KEY=...` ekleyip Vite'ı yeniden başlatın. Üretim için bu değişkeni derlemeden önce sağlayın.
 
-Harita `@react-google-maps/api` kullanır. Otel ve mekanlardaki `location: { lat, lng }` koordinatlarına pin yerleştirir, tüm konumları çerçeveye alır. Pine tıklanınca isim, adres, notlar ve mekan ücreti/durumları gösterilir; “Google Maps Yol Tarifi Al” bağlantısı seçili konuma yol tarifini yeni sekmede açar. Koordinatları Google Maps'te konuma sağ tıklayarak alıp formlara girebilirsiniz. Adresler otomatik olarak koordinata çevrilmez; koordinatsız kayıtlar listede kalır ve haritada eksik konum sayısı belirtilir. Anahtar olmadan panel çalışır, harita alanında kurulum durumu gösterilir.
+Harita `@react-google-maps/api` kullanır. Mekan ekleme/düzenleme ve otel formundaki **Haritada yer ara** alanında yeni Places otomatik tamamlaması kullanılır. Sonuç seçince konum ve açık adres otomatik doldurulur. Haritaya tıklayınca koordinat seçilir ve Geocoding ile adres alınır. Seçim sürerken kaydetme kapalıdır; adres alınamazsa konum korunur ve adres elle girilebilir. Anahtar yoksa elle adres/koordinat girişi çalışmaya devam eder. Tüm haritalar aynı, sabit `places` kütüphaneli yükleyiciyi kullanır; formla şehir haritasının eşzamanlı açılması ikinci bir Maps betiği yüklemez.
+
+Şehir haritası listedeki filtreden bağımsız olarak tüm konumları gösterir: 🏨 otel, ⭐ mutlaka gidilmeli, 🏛️ müze, 📍 gezilecek yer, 🍽️ yemek, ☕ kahve ve 🍰 tatlı. Otel ve yıldız önceliği kategori ikonundan önce gelir. Bilgi penceresinde isim, kategori, `famousFor` (neyiyle meşhur), adres, notlar ve ücret/durum bilgileri bulunur. **Google Maps'te Yol Tarifi Al** seçili koordinata yeni sekmede yol tarifi açar. Yeni `famousFor` alanı isteğe bağlıdır; eski kayıtlar göç gerektirmez. Koordinatsız eski mekanları listedeki **Düzenle**, oteli **Şehir bilgilerini düzenle** üzerinden haritadan konum seçerek tamamlayabilirsiniz.
 
 UI testleri şehir seçimi, filtreler, kayıt hatası, mekan ekleme ve pin popup/yol tarifi davranışlarını taklit edilmiş Auth, Firestore ve Maps ile doğrular. Gerçek Maps yükleme/alan adı yetkisi ve gerçek Firestore işlemleri için yapılandırılmış projeyle tarayıcı kontrolü gerekir.
 
@@ -118,7 +120,7 @@ Giriş ekranında ve panelin üst çubuğundaki tema butonu aktif modu “☀️
 
    Değerleri Firebase Console → Project settings → Your apps ve Google Cloud'dan alın. Ortam değişkenleri Vite derlemesi sırasında uygulamaya eklenir; değiştirdiğinizde yeniden deploy edin. Servis hesabı veya özel anahtar eklemeyin. GitHub Actions test/derleme akışı bu değerler olmadan çalışır; gerçek giriş veya Maps erişimini test etmez.
 4. **Deploy** seçin. Firebase Console → Authentication → Settings → Authorized domains listesine Vercel yayın alan adını (`projeniz.vercel.app`) ve kullanacağınız özel alan adını ekleyin. Sabit bir preview alanı kullanıyorsanız onu da ekleyin.
-5. Google Cloud'da Maps anahtarının HTTP referrer kısıtlarına `https://projeniz.vercel.app/*` ve varsa özel alan adını ekleyin. Maps JavaScript API ve faturalandırma etkin olmalı.
+5. Google Cloud'da Maps anahtarının HTTP referrer kısıtlarına `https://projeniz.vercel.app/*` ve varsa özel alan adını ekleyin. Maps JavaScript API, Places API (New), Geocoding API ve faturalandırma etkin olmalı.
 6. Firestore veritabanını oluşturun ve depodaki `firestore.rules` kurallarını Firebase Console üzerinden yayınlayın. Authentication için Google ve E-posta/Şifre sağlayıcılarını etkinleştirin.
 7. Yayında giriş/kayıt, sayfa yenileme, seyahat/şehir/mekan kaydı, ziyaret işaretleme, tema tercihi ve harita pinlerini kontrol edin.
 

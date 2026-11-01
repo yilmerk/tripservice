@@ -122,9 +122,9 @@ export async function addDestination(userId: string, tripId: string, input: Dest
 export async function addPlace(userId: string, tripId: string, destinationId: string, input: PlaceInput): Promise<string> {
   validatePlace(input);
   const id = crypto.randomUUID();
-  const { name, category, address, notes, fee, mustVisit, visited, location } = input;
+  const { name, category, address, notes, fee, mustVisit, visited, location, famousFor } = input;
   await mutateDestinations(userId, tripId, destinations => {
-    findDestination(destinations, destinationId).places.push({ id, name, category, address, notes, fee, mustVisit, visited, location });
+    findDestination(destinations, destinationId).places.push({ id, name, category, address, notes, fee, mustVisit, visited, location, famousFor });
   });
   return id;
 }
@@ -147,5 +147,17 @@ export async function updateDestination(userId: string, tripId: string, destinat
   const { city, country, hotels, airportNotes, localTransportNotes, intercityNotes } = input;
   await mutateDestinations(userId, tripId, destinations => {
     Object.assign(findDestination(destinations, destinationId), clean({ city, country, hotels, airportNotes, localTransportNotes, intercityNotes }));
+  });
+}
+
+export async function updatePlace(userId: string, tripId: string, destinationId: string, placeId: string, input: PlaceInput): Promise<void> {
+  validatePlace(input);
+  const { name, category, address, notes, fee, mustVisit, location, famousFor } = input;
+  await mutateDestinations(userId, tripId, destinations => {
+    const places = findDestination(destinations, destinationId).places;
+    const index = places.findIndex(place => place.id === placeId);
+    if (index < 0) throw new Error('Mekan bulunamadı.');
+    // Preserve visit changes made in another tab while the edit form was open.
+    places[index] = clean({ id: placeId, name, category, address, notes, fee, mustVisit, visited: places[index].visited, location, famousFor });
   });
 }

@@ -22,7 +22,7 @@ vi.mock('firebase/firestore', () => {
     }),
   };
 });
-import { addDestination, addPlace, createTrip, deleteTrip, getTrip, markPlaceVisited, updateTrip, updateDestination } from '../src/services/tripService';
+import { addDestination, addPlace, createTrip, deleteTrip, getTrip, markPlaceVisited, updateTrip, updateDestination, updatePlace } from '../src/services/tripService';
 
 beforeEach(() => {
   state.uid = 'alice'; state.writes = [];
@@ -82,4 +82,14 @@ it('preserves coordinates and existing places when editing destination guides', 
 it('rejects invalid coordinates before writing', async () => {
   await expect(addDestination('alice', 'trip-1', { city: 'Roma', country: 'İtalya', hotels: [{ name: 'Otel', location: { lat: 100, lng: 12 } }] })).rejects.toThrow('enlem');
   expect(state.writes).toHaveLength(0);
+});
+
+it('stores famousFor and updates a place while preserving a concurrent visit', async () => {
+  const destinationId = await addDestination('alice', 'trip-1', { city: 'Roma', country: 'İtalya' });
+  const placeId = await addPlace('alice', 'trip-1', destinationId, { name: 'Kafe', category: 'coffee', famousFor: 'Espresso', mustVisit: false, visited: false });
+  expect((await getTrip('alice', 'trip-1'))?.destinations[0].places[0].famousFor).toBe('Espresso');
+  await markPlaceVisited('alice', 'trip-1', destinationId, placeId, true);
+  await updatePlace('alice', 'trip-1', destinationId, placeId, { name: 'Yeni kafe', category: 'coffee', famousFor: 'Tiramisu', location: { lat: 41, lng: 12 }, address: 'Yeni adres', mustVisit: true, visited: false });
+  expect((await getTrip('alice', 'trip-1'))?.destinations[0].places[0]).toMatchObject({ id: placeId, name: 'Yeni kafe', visited: true, famousFor: 'Tiramisu', location: { lat: 41, lng: 12 }, address: 'Yeni adres' });
+  await expect(updatePlace('alice', 'trip-1', destinationId, 'missing', { name: 'Yeni', category: 'coffee', mustVisit: false, visited: false })).rejects.toThrow('Mekan bulunamadı');
 });
