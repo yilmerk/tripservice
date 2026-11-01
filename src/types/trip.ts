@@ -1,11 +1,7 @@
 import type { Timestamp } from 'firebase/firestore';
 
-export interface Coordinates { lat: number; lng: number }
-
 export interface Hotel {
-  location?: Coordinates;
   name: string;
-  address?: string;
   checkIn?: string; // YYYY-MM-DD
   checkOut?: string;
   reservationCode?: string;
@@ -14,10 +10,8 @@ export interface Hotel {
 }
 export type PlaceCategory = 'attraction' | 'museum' | 'food-and-drink' | 'food' | 'coffee' | 'dessert' | 'other';
 export interface PlaceInput {
-  location?: Coordinates;
   name: string;
   category: PlaceCategory;
-  address?: string;
   notes?: string;
   famousFor?: string;
   fee?: { amount: number; currency: string }; // ISO 4217, e.g. TRY, EUR

@@ -6,16 +6,15 @@ const mocks = vi.hoisted(() => ({ mark: vi.fn(), addPlace: vi.fn(), update: vi.f
 vi.mock('../src/context/AuthContext', () => ({ useAuth: () => ({ user: { uid: 'alice', displayName: 'Ada', email: 'ada@example.com' }, logout: vi.fn() }) }));
 vi.mock('../src/services/tripService', () => ({
   subscribeTrips: (_uid: string, next: (trips: unknown[]) => void) => { next([{ id: 'trip-1', title: 'İtalya', destinations: [
-    { id: 'rome', city: 'Roma', country: 'İtalya', hotels: [{ name: 'Roma Otel' }], airportNotes: 'Express treni', localTransportNotes: 'Temassız ödeme', intercityNotes: 'Floransa treni', places: [
+    { id: 'rome', city: 'Roma', country: 'İtalya', hotels: [{ name: 'Roma Otel', address: 'Eski otel adresi', location: { lat: 41, lng: 12 } }], airportNotes: 'Express treni', localTransportNotes: 'Temassız ödeme', intercityNotes: 'Floransa treni', places: [
       { id: 'museum', name: 'Vatikan Müzesi', category: 'museum', mustVisit: true, visited: false },
-      { id: 'cafe', name: 'Roma Kahve', category: 'coffee', mustVisit: false, visited: false },
+      { id: 'cafe', name: 'Roma Kahve', address: 'Eski mekan adresi', location: { lat: 41, lng: 12 }, category: 'coffee', mustVisit: false, visited: false },
     ] },
     { id: 'florence', city: 'Floransa', country: 'İtalya', places: [] },
   ] }]); return mocks.unsubscribe; },
   markPlaceVisited: mocks.mark, addPlace: mocks.addPlace, updateDestination: mocks.update, updatePlace: mocks.updatePlace,
   createTrip: vi.fn(), addDestination: vi.fn(),
 }));
-vi.mock('../src/components/CityMap', () => ({ default: () => <div>Şehir haritası</div> }));
 import Dashboard from '../src/components/Dashboard';
 import { ThemeProvider } from '../src/context/ThemeContext';
 beforeEach(() => {
@@ -44,18 +43,16 @@ it('shows city guides, filters places, marks visits and switches sidebar routes'
   expect(screen.getByText('İlk keşfini ekle.')).toBeTruthy();
   cleanup(); expect(mocks.unsubscribe).toHaveBeenCalled();
 });
-it('saves a coffee place with coordinates and fee through the form', async () => {
+it('saves a coffee place and fee through the form', async () => {
   const user = userEvent.setup(); render(<ThemeProvider><Dashboard/></ThemeProvider>);
   await user.click(await screen.findByRole('button', { name: 'Mekan ekle' }));
   const dialog = within(screen.getByRole('dialog'));
   await user.type(dialog.getByLabelText('Mekan adı'), 'Yeni Kafe');
   await user.selectOptions(dialog.getByLabelText('Kategori'), 'coffee');
-  await user.type(dialog.getByLabelText('Enlem'), '41');
-  await user.type(dialog.getByLabelText('Boylam'), '29');
   await user.type(dialog.getByLabelText('Ücret'), '0');
   await user.click(dialog.getByLabelText('Mutlaka gidilmeli'));
   await user.click(dialog.getByRole('button', { name: 'Mekanı rotama ekle' }));
-  await waitFor(() => expect(mocks.addPlace).toHaveBeenCalledWith('alice', 'trip-1', 'rome', expect.objectContaining({ name: 'Yeni Kafe', category: 'coffee', location: { lat: 41, lng: 29 }, fee: { amount: 0, currency: 'EUR' }, mustVisit: true, visited: false })));
+  await waitFor(() => expect(mocks.addPlace).toHaveBeenCalledWith('alice', 'trip-1', 'rome', expect.objectContaining({ name: 'Yeni Kafe', category: 'coffee', fee: { amount: 0, currency: 'EUR' }, mustVisit: true, visited: false })));
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
 });
 it('keeps the editor open and displays a save failure', async () => {
@@ -75,4 +72,14 @@ it('opens and saves an existing place without losing its category', async () => 
   await user.type(screen.getByLabelText('Neyiyle meşhur?'), 'Espresso');
   await user.click(screen.getByRole('button', { name: 'Değişiklikleri kaydet' }));
   await waitFor(() => expect(mocks.updatePlace).toHaveBeenCalledWith('alice', 'trip-1', 'rome', 'cafe', expect.objectContaining({ category: 'coffee', famousFor: 'Espresso' })));
+});
+
+it('shows legacy trips without map panels, address details or directions links', async () => {
+  render(<ThemeProvider><Dashboard/></ThemeProvider>);
+  expect(await screen.findByText('Roma Otel')).toBeTruthy();
+  expect(screen.getByText('Roma Kahve')).toBeTruthy();
+  expect(screen.queryByText('Rota haritam')).toBeNull();
+  expect(screen.queryByText('Eski otel adresi')).toBeNull();
+  expect(screen.queryByText('Eski mekan adresi')).toBeNull();
+  expect(screen.queryByRole('link', { name: /yol tarifi/i })).toBeNull();
 });

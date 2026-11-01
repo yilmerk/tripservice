@@ -34,19 +34,15 @@ function validateTrip(input: TripInput) {
   date(input.startDate); date(input.endDate);
   if (input.startDate && input.endDate && input.startDate > input.endDate) throw new Error('Bitiş tarihi başlangıçtan önce olamaz.');
 }
-function validateLocation(location: { lat: number; lng: number } | undefined) {
-  if (location && (!Number.isFinite(location.lat) || !Number.isFinite(location.lng) || Math.abs(location.lat) > 90 || Math.abs(location.lng) > 180)) throw new Error('Geçersiz enlem veya boylam.');
-}
 function validateDestination(input: DestinationInput) {
   required(input.city, 'Şehir'); required(input.country, 'Ülke');
   input.hotels?.forEach(hotel => {
-    required(hotel.name, 'Otel adı'); validateLocation(hotel.location); date(hotel.checkIn); date(hotel.checkOut);
+    required(hotel.name, 'Otel adı'); date(hotel.checkIn); date(hotel.checkOut);
     if (hotel.checkIn && hotel.checkOut && hotel.checkIn > hotel.checkOut) throw new Error('Otel çıkışı girişten önce olamaz.');
   });
 }
 function validatePlace(input: PlaceInput) {
   required(input.name, 'Mekan adı');
-  validateLocation(input.location);
   if (!['attraction', 'museum', 'food-and-drink', 'food', 'coffee', 'dessert', 'other'].includes(input.category)) throw new Error('Geçersiz mekan kategorisi.');
   if (typeof input.visited !== 'boolean' || typeof input.mustVisit !== 'boolean') throw new Error('Ziyaret durumları boolean olmalı.');
   if (input.fee && (!Number.isFinite(input.fee.amount) || input.fee.amount < 0 || !/^[A-Z]{3}$/.test(input.fee.currency))) {
@@ -122,9 +118,9 @@ export async function addDestination(userId: string, tripId: string, input: Dest
 export async function addPlace(userId: string, tripId: string, destinationId: string, input: PlaceInput): Promise<string> {
   validatePlace(input);
   const id = crypto.randomUUID();
-  const { name, category, address, notes, fee, mustVisit, visited, location, famousFor } = input;
+  const { name, category, notes, fee, mustVisit, visited, famousFor } = input;
   await mutateDestinations(userId, tripId, destinations => {
-    findDestination(destinations, destinationId).places.push({ id, name, category, address, notes, fee, mustVisit, visited, location, famousFor });
+    findDestination(destinations, destinationId).places.push({ id, name, category, notes, fee, mustVisit, visited, famousFor });
   });
   return id;
 }
@@ -152,12 +148,12 @@ export async function updateDestination(userId: string, tripId: string, destinat
 
 export async function updatePlace(userId: string, tripId: string, destinationId: string, placeId: string, input: PlaceInput): Promise<void> {
   validatePlace(input);
-  const { name, category, address, notes, fee, mustVisit, location, famousFor } = input;
+  const { name, category, notes, fee, mustVisit, famousFor } = input;
   await mutateDestinations(userId, tripId, destinations => {
     const places = findDestination(destinations, destinationId).places;
     const index = places.findIndex(place => place.id === placeId);
     if (index < 0) throw new Error('Mekan bulunamadı.');
     // Preserve visit changes made in another tab while the edit form was open.
-    places[index] = clean({ id: placeId, name, category, address, notes, fee, mustVisit, visited: places[index].visited, location, famousFor });
+    places[index] = clean({ id: placeId, name, category, notes, fee, mustVisit, visited: places[index].visited, famousFor });
   });
 }

@@ -70,17 +70,17 @@ describe('trip service', () => {
   });
 });
 
-it('preserves coordinates and existing places when editing destination guides', async () => {
-  const destinationId = await addDestination('alice', 'trip-1', { city: 'Roma', country: 'İtalya', intercityNotes: 'Tren', hotels: [{ name: 'Otel', location: { lat: 41, lng: 12 } }] });
-  const placeId = await addPlace('alice', 'trip-1', destinationId, { name: 'Kafe', category: 'coffee', location: { lat: 42, lng: 13 }, mustVisit: false, visited: false });
+it('preserves hotel information and existing places when editing destination guides', async () => {
+  const destinationId = await addDestination('alice', 'trip-1', { city: 'Roma', country: 'İtalya', intercityNotes: 'Tren', hotels: [{ name: 'Otel', reservationCode: 'ABC123' }] });
+  const placeId = await addPlace('alice', 'trip-1', destinationId, { name: 'Kafe', category: 'coffee', mustVisit: false, visited: false });
   await updateDestination('alice', 'trip-1', destinationId, { city: 'Roma', country: 'İtalya', intercityNotes: 'Yeni tren' });
   const trip = await getTrip('alice', 'trip-1');
-  expect(trip?.destinations[0].hotels?.[0].location).toEqual({ lat: 41, lng: 12 });
-  expect(trip?.destinations[0].places[0]).toMatchObject({ id: placeId, location: { lat: 42, lng: 13 }, category: 'coffee' });
+  expect(trip?.destinations[0].hotels?.[0].reservationCode).toBe('ABC123');
+  expect(trip?.destinations[0].places[0]).toMatchObject({ id: placeId, category: 'coffee' });
   expect(trip?.destinations[0].intercityNotes).toBe('Yeni tren');
 });
-it('rejects invalid coordinates before writing', async () => {
-  await expect(addDestination('alice', 'trip-1', { city: 'Roma', country: 'İtalya', hotels: [{ name: 'Otel', location: { lat: 100, lng: 12 } }] })).rejects.toThrow('enlem');
+it('rejects an empty hotel name before writing', async () => {
+  await expect(addDestination('alice', 'trip-1', { city: 'Roma', country: 'İtalya', hotels: [{ name: '   ' }] })).rejects.toThrow('Otel adı');
   expect(state.writes).toHaveLength(0);
 });
 
@@ -89,7 +89,7 @@ it('stores famousFor and updates a place while preserving a concurrent visit', a
   const placeId = await addPlace('alice', 'trip-1', destinationId, { name: 'Kafe', category: 'coffee', famousFor: 'Espresso', mustVisit: false, visited: false });
   expect((await getTrip('alice', 'trip-1'))?.destinations[0].places[0].famousFor).toBe('Espresso');
   await markPlaceVisited('alice', 'trip-1', destinationId, placeId, true);
-  await updatePlace('alice', 'trip-1', destinationId, placeId, { name: 'Yeni kafe', category: 'coffee', famousFor: 'Tiramisu', location: { lat: 41, lng: 12 }, address: 'Yeni adres', mustVisit: true, visited: false });
-  expect((await getTrip('alice', 'trip-1'))?.destinations[0].places[0]).toMatchObject({ id: placeId, name: 'Yeni kafe', visited: true, famousFor: 'Tiramisu', location: { lat: 41, lng: 12 }, address: 'Yeni adres' });
+  await updatePlace('alice', 'trip-1', destinationId, placeId, { name: 'Yeni kafe', category: 'coffee', famousFor: 'Tiramisu', mustVisit: true, visited: false });
+  expect((await getTrip('alice', 'trip-1'))?.destinations[0].places[0]).toMatchObject({ id: placeId, name: 'Yeni kafe', visited: true, famousFor: 'Tiramisu' });
   await expect(updatePlace('alice', 'trip-1', destinationId, 'missing', { name: 'Yeni', category: 'coffee', mustVisit: false, visited: false })).rejects.toThrow('Mekan bulunamadı');
 });

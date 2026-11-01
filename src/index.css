@@ -6,9 +6,7 @@
 /* Theme surfaces also cover existing semantic CSS components outside Tailwind layers. */
 :root { color-scheme: light; }
 html.dark { color-scheme: dark; background: #020617; }
-body, .form-panel, .planner-shell, .planner-sidebar, .planner-topbar,
-.info-card, .place-card, .planner-dialog, input, select, textarea,
-.google-button, .outline-button, .theme-toggle {
+body, .form-panel, .planner-shell, .planner-sidebar, .planner-topbar, .info-card, .place-card, .planner-dialog, input, select, textarea, .google-button, .outline-button, .theme-toggle {
   transition-property: background-color, color, border-color, box-shadow;
   transition-duration: 200ms;
 }
@@ -17,14 +15,11 @@ body, .form-panel, .planner-shell, .planner-sidebar, .planner-topbar,
 .dark body, .dark .form-panel, .dark .loading-screen, .dark .planner-shell {
   @apply bg-slate-950 text-slate-100;
 }
-.dark .planner-sidebar, .dark .planner-topbar, .dark .info-card,
-.dark .place-card, .dark .planner-dialog, .dark .google-button, .dark .new-trip {
+.dark .planner-sidebar, .dark .planner-topbar, .dark .info-card, .dark .place-card, .dark .planner-dialog, .dark .google-button, .dark .new-trip {
   @apply bg-slate-900 text-slate-100 border-slate-700;
 }
 .dark .planner-topbar { @apply border-slate-800; }
-.dark .tabs, .dark .welcome-icon, .dark .sidebar-note, .dark .avatar,
-.dark .empty-compass, .dark .place-icon, .dark .card-icon,
-.dark .section-heading h2 > span {
+.dark .tabs, .dark .welcome-icon, .dark .sidebar-note, .dark .avatar, .dark .empty-compass, .dark .place-icon, .dark .card-icon, .dark .section-heading h2 > span {
   @apply bg-slate-800 text-emerald-200 border-slate-700;
 }
 .dark .tabs button { @apply text-slate-400; }
@@ -35,21 +30,10 @@ body, .form-panel, .planner-shell, .planner-sidebar, .planner-topbar,
 .dark input::placeholder, .dark textarea::placeholder { @apply text-slate-500; }
 .dark input:focus, .dark textarea:focus, .dark select:focus { outline-color: #6ee7b7; }
 .dark button:focus-visible, .dark a:focus-visible { outline-color: #a7f3d0; }
-.dark .form-intro, .dark .form-header, .dark .form-footer, .dark .switch-mode,
-.dark .trust, .dark .language, .dark .divider, .dark .form-kicker,
-.dark .sidebar-caption, .dark .sidebar-empty, .dark .sidebar-user div > span,
-.dark .planner-topbar, .dark .planner-topbar > span > span,
-.dark .city-heading p, .dark .info-card > p, .dark .hotel-entry > p,
-.dark .place-body p, .dark .place-meta, .dark .card-eyebrow,
-.dark .map-hint, .dark .map-legend, .dark .list-summary,
-.dark .planner-footer, .dark .field-hint, .dark .planner-empty p,
-.dark .hotel-dates, .dark .city-number, .dark .icon-button,
-.dark .sidebar-note p, .dark .sidebar-note strong, .dark .visit-button {
+.dark .form-intro, .dark .form-header, .dark .form-footer, .dark .switch-mode, .dark .trust, .dark .language, .dark .divider, .dark .form-kicker, .dark .sidebar-caption, .dark .sidebar-empty, .dark .sidebar-user div > span, .dark .planner-topbar, .dark .planner-topbar > span > span, .dark .city-heading p, .dark .info-card > p, .dark .hotel-entry > p, .dark .place-body p, .dark .place-meta, .dark .card-eyebrow, .dark .list-summary, .dark .planner-footer, .dark .field-hint, .dark .planner-empty p, .dark .hotel-dates, .dark .city-number, .dark .icon-button, .dark .sidebar-note p, .dark .sidebar-note strong, .dark .visit-button {
   @apply text-slate-400;
 }
-.dark .city-heading h1, .dark .section-heading h2, .dark .hotel-entry h3,
-.dark .place-name h3, .dark .planner-empty h1, .dark .places-empty h3,
-.dark .planner-dialog h2, .dark .planner-form h3, .dark .hotel-dates strong {
+.dark .city-heading h1, .dark .section-heading h2, .dark .hotel-entry h3, .dark .place-name h3, .dark .planner-empty h1, .dark .places-empty h3, .dark .planner-dialog h2, .dark .planner-form h3, .dark .hotel-dates strong {
   @apply text-slate-100;
 }
 .dark .primary-button, .dark .solid-button { @apply bg-emerald-800 border-emerald-700 text-white; }
@@ -58,8 +42,7 @@ body, .form-panel, .planner-shell, .planner-sidebar, .planner-topbar,
 .dark .outline-button, .dark .place-filters button { @apply bg-slate-900 border-slate-700 text-slate-300; }
 .dark .trip-choice, .dark .city-nav button { @apply text-slate-300; }
 .dark .trip-choice.selected, .dark .place-filters button.active { @apply bg-emerald-950 text-emerald-200 border-emerald-800; }
-.dark .city-nav button[aria-current=page], .dark .text-link, .dark .switch-mode button,
-.dark .trust svg, .dark .map-panel > .section-heading { @apply text-emerald-300; }
+.dark .city-nav button[aria-current=page], .dark .text-link, .dark .switch-mode button, .dark .trust svg { @apply text-emerald-300; }
 .dark .selected-dot, .dark .online-dot { @apply bg-emerald-400; }
 .dark .city-heading h1 > span { @apply text-emerald-300; }
 .dark .visited { @apply bg-slate-900; }
@@ -68,15 +51,10 @@ body, .form-panel, .planner-shell, .planner-sidebar, .planner-topbar,
 .dark .visit-button.checked > svg { @apply bg-emerald-950 border-emerald-700 text-emerald-300; }
 .dark .place-icon.warm, .dark .card-icon.sand, .dark .card-icon.rose { @apply bg-amber-950 text-amber-200; }
 .dark .card-icon.blue { @apply bg-sky-950 text-sky-200; }
-.dark .places-empty, .dark .map-placeholder { @apply bg-slate-900 border-slate-700 text-slate-400; background-image: none; }
-.dark .map-placeholder h3 { @apply text-slate-200; }
-.dark .map-popup { @apply text-slate-800; }
-.dark .map-popup a { @apply text-emerald-800; }
-.dark .city-map { @apply border-slate-700; }
+.dark .places-empty { @apply bg-slate-900 border-slate-700 text-slate-400; background-image: none; }
 .dark .error-message { @apply bg-red-950 text-red-200 border-red-800; }
 .dark .divider span, .dark .destination-line { @apply bg-slate-700; }
-.dark .trust, .dark .sidebar-user, .dark .city-nav, .dark .planner-footer,
-.dark .planner-form h3, .dark .hotel-entry + .hotel-entry { @apply border-slate-700; }
+.dark .trust, .dark .sidebar-user, .dark .city-nav, .dark .planner-footer, .dark .planner-form h3, .dark .hotel-entry + .hotel-entry { @apply border-slate-700; }
 .dark .planner-dialog::backdrop { background: #020617b3; }
 .dark .story-shade { background: linear-gradient(180deg, #02061755, #02061744 30%, #020617d9); }
 @media (max-width: 700px) {
@@ -85,12 +63,5 @@ body, .form-panel, .planner-shell, .planner-sidebar, .planner-topbar,
   .planner-topbar { height: auto; min-height: 60px; flex-wrap: wrap; padding-top: 12px; padding-bottom: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  body, .form-panel, .planner-shell, .planner-sidebar, .planner-topbar, .info-card,
-  .place-card, .planner-dialog, input, select, textarea, .google-button,
-  .outline-button, .theme-toggle { transition: none; }
+  body, .form-panel, .planner-shell, .planner-sidebar, .planner-topbar, .info-card, .place-card, .planner-dialog, input, select, textarea, .google-button, .outline-button, .theme-toggle { transition: none; }
 }
-.dark .gm-style .gm-style-iw-c, .dark .gm-style .gm-style-iw-d { @apply bg-slate-900; }
-.dark .gm-style .gm-style-iw-tc::after { background: #0f172a; }
-.dark .map-popup { @apply text-slate-100; }
-.dark .map-popup a { @apply text-emerald-300; }
-.dark .gm-style-iw-chr button span { filter: invert(1); }
