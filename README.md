@@ -69,7 +69,7 @@ await markPlaceVisited(user.uid, tripId, destinationId, placeId);
 
 Servis ayrıca `getTrip`, `getTrips`, `subscribeTrips`, `updateTrip`, `deleteTrip`, `updateDestination` ve `updatePlace` fonksiyonlarını sağlar. `getTrip` bulunamayan belge için `null` döndürür; güncellemeler bulunamayan kayıtta hata verir. Silme idempotenttir. `updateTrip` yalnızca başlık, açıklama ve tarihleri değiştirir. Mekan düzenlemesi, başka sekmede değiştirilmiş ziyaret durumunu korur.
 
-Destinasyonlar ve mekanlar dizilerde tutulur; ekleme, düzenleme ve ziyaret işaretleme işlemleri transaction kullanır. Seyahat silme tek belge işlemidir. Her seyahat Firestore'un 1 MiB belge sınırına tabidir.
+Destinasyonlar ve mekanlar dizilerde tutulur; ekleme, düzenleme ve ziyaret işaretleme işlemleri transaction kullanır. Seyahat silinirken harcama alt koleksiyonu 400 kayıtlık gruplar halinde temizlenir; sahiplik kaydı silinmiş durumunda korunur. Her seyahat Firestore'un 1 MiB belge sınırına tabidir.
 
 `firestore.rules` yalnızca oturum açan kullanıcıya kendi seyahat belgelerinde erişim verir. Dosyanın yerelde bulunması kuralları otomatik yayınlamaz.
 
@@ -101,3 +101,34 @@ Karşılama ekranı fotoğrafı Unsplash üzerinden yüklenir; çevrimdışıyke
 6. Yayında giriş/kayıt, oturum kalıcılığı, seyahat/şehir/mekan kaydı, ziyaret durumu ve tema tercihini kontrol edin.
 
 GitHub Actions, `main` gönderimlerinde ve `main` hedefli pull request'lerde `npm ci`, `npm test` ve `npm run build` çalıştırır. Vercel bağlantısı kuruluysa `main` değişiklikleri otomatik dağıtım başlatır. Firebase kuralları Vercel tarafından yayınlanmaz.
+
+
+## Bütçe ve harcama takibi
+
+Yeni seyahatte hedef bütçe ve varsayılan para birimi seçilebilir; mevcut seyahatlerde bütçe panelinden ayarlanır. Panel seçili seyahatin bütün şehirleri için ortaktır ve şehir eklenmeden de kullanılabilir. Kategoriler: Konaklama, Ulaşım, Yeme-İçme, Müteferrik/Alışveriş, Müze & Etkinlik ve Diğer. Harcamalar eklenebilir, düzenlenebilir ve onayla silinebilir.
+
+Özet; toplam bütçe, harcanan tutar, kalan bütçe, ilerleme çubuğu ve kategori dağılımını gösterir. Kullanım %80'in üzerindeyse sarı, bütçe aşılırsa kırmızı uyarı verilir. Bütçe belirtilmemişse kalan tutar hesaplanmaz; sıfır bütçe ve aşım ayrıca ele alınır. Mekanların planlanan ücretleri otomatik harcama sayılmaz.
+
+Seyahat belgesinde `totalBudget` (ana birim cinsinden sayı), `currency` ve `budgetCurrencyLocked` alanları kullanılır. Eski seyahatlerin varsayılan para birimi EUR'dur; bütçe isteğe bağlıdır.
+
+```text
+users/{userId}/trips/{tripId}: totalBudget?, currency?, budgetCurrencyLocked?
+trips/{tripId}: ownerId, currency, hasExpenses, status, createdAt
+trips/{tripId}/expenses/{expenseId}:
+  name, amountMinor, currency, date, category,
+  exchangeRate, baseAmountMinor, baseCurrency, createdAt, updatedAt
+```
+
+`src/services/expenseService.ts`; `setTripBudget`, `addExpense`, `updateExpense`, `deleteExpense`, `getExpenses`, `subscribeExpenses`, `ensureExpenseLedger` ve seyahatle birlikte alt koleksiyon temizliği fonksiyonlarını sağlar. `addExpense` ve `getExpenses` eski seyahatlerde sahiplik kaydını otomatik oluşturur. Canlı abonelikten önce `ensureExpenseLedger` çağrılır. `trips/{tripId}` belgesi yalnızca finans sahiplik kaydıdır; mevcut seyahat belgeleri taşınmaz. Sahiplik başka kullanıcıya devredilemez. Silinen kaydın sahiplik bilgisi korunarak aynı kimlikle kalan alt kayıtların başka bir hesaba açılması engellenir.
+
+Para tutarları harcamalarda en küçük birimle tam sayı saklanır: EUR/USD/TRY/GBP vb. için kuruş, JPY için yen. İlk harcamadan sonra ana para birimi kalıcı olarak sabitlenir. Harcama farklı para birimindeyse kullanıcı **1 harcama para birimi = kaç seyahat para birimi** kurunu girer. Kur kayıtla saklanır ve geçmiş tutarlar otomatik kur değişimlerinden etkilenmez; dış kur servisi kullanılmaz. Kurla hesaplanan tutar ana para biriminin en küçük birimine yuvarlanır.
+
+**Yayın adımı:** Güncellenen `firestore.rules` dosyasını Firebase Console → Firestore → Rules bölümünde yayınlayın. Vercel bu kuralları yayınlamaz. Kurallar yayınlanana kadar bütçe paneli erişim hatası gösterir; diğer seyahat özellikleri çalışır.
+
+Güvenlik testleri Firestore Emulator ile çalıştırılır:
+
+```sh
+npx --yes firebase-tools@15 emulators:exec --project demo-rota --only firestore "npm run test:rules"
+```
+
+Java 21 gerekir. GitHub Actions ayrıca bu emülatör testlerini çalıştırır: hesaplar arası erişim, sahte sahiplik, para birimi kilidi, geçersiz tutarlar ve silme sırasındaki yazmalar sınanır.

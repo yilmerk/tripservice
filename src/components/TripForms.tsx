@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { X } from 'lucide-react';
+import { currencies, type Currency } from '../types/expense';
 import type { Destination, DestinationInput, Place, PlaceInput, TripInput } from '../types/trip';
 
 export function Modal({ title, onClose, busy, children }: { title: string; onClose: () => void; busy: boolean; children: ReactNode }) {
@@ -24,7 +25,7 @@ function FormShell({ onSubmit, busy, children, submitLabel }: { onSubmit: (data:
   return <form className="planner-form" onSubmit={submit}><fieldset disabled={busy}>{children}{error && <p className="error-message" role="alert">{error}</p>}<button className="primary-button" type="submit" disabled={busy}>{busy ? 'Kaydediliyor…' : submitLabel}</button></fieldset></form>;
 }
 export function TripForm({ busy, onSave }: { busy: boolean; onSave: (input: TripInput) => Promise<void> }) {
-  return <FormShell busy={busy} submitLabel="Seyahati oluştur" onSubmit={data => onSave({ title: text(data, 'title'), startDate: text(data, 'startDate') || undefined, endDate: text(data, 'endDate') || undefined })}><label>Seyahat adı<input className="dark:bg-slate-950 dark:text-slate-100 dark:border-slate-700" autoFocus name="title" required maxLength={120} placeholder="Örn. İtalya kaçamağı"/></label><div className="field-row"><label>Başlangıç<input className="dark:bg-slate-950 dark:text-slate-100 dark:border-slate-700" type="date" name="startDate"/></label><label>Bitiş<input className="dark:bg-slate-950 dark:text-slate-100 dark:border-slate-700" type="date" name="endDate"/></label></div></FormShell>;
+  return <FormShell busy={busy} submitLabel="Seyahati oluştur" onSubmit={data => onSave({ title: text(data, 'title'), totalBudget: text(data, 'totalBudget') ? Number(text(data, 'totalBudget')) : undefined, currency: text(data, 'currency') as Currency, startDate: text(data, 'startDate') || undefined, endDate: text(data, 'endDate') || undefined })}><label>Seyahat adı<input className="dark:bg-slate-950 dark:text-slate-100 dark:border-slate-700" autoFocus name="title" required maxLength={120} placeholder="Örn. İtalya kaçamağı"/></label><div className="field-row"><label>Hedef bütçe (isteğe bağlı)<input name="totalBudget" type="number" min="0" step="any" placeholder="Örn. 1500"/></label><label>Varsayılan para birimi<select name="currency" defaultValue="EUR">{currencies.map(currency => <option key={currency} value={currency}>{currency}</option>)}</select></label></div><div className="field-row"><label>Başlangıç<input className="dark:bg-slate-950 dark:text-slate-100 dark:border-slate-700" type="date" name="startDate"/></label><label>Bitiş<input className="dark:bg-slate-950 dark:text-slate-100 dark:border-slate-700" type="date" name="endDate"/></label></div></FormShell>;
 }
 export function DestinationForm({ busy, destination, onSave }: { busy: boolean; destination?: Destination; onSave: (input: DestinationInput) => Promise<void> }) {
   const hotel = destination?.hotels?.[0];

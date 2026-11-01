@@ -2,7 +2,7 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { DestinationForm, PlaceForm } from '../src/components/TripForms';
+import { DestinationForm, PlaceForm, TripForm } from '../src/components/TripForms';
 
 afterEach(cleanup);
 function expectNoLocationInputs() {
@@ -32,4 +32,13 @@ it('edits a visited place without location inputs and preserves its details', as
   expect(save).toHaveBeenCalledWith(expect.objectContaining({ name: 'Kafe', category: 'coffee', visited: true, mustVisit: true, famousFor: 'Espresso', fee: { amount: 3, currency: 'EUR' } }));
   expect(save.mock.calls[0][0]).not.toHaveProperty('location');
   expect(save.mock.calls[0][0]).not.toHaveProperty('address');
+});
+
+it('creates a trip with a target budget and default currency', async () => {
+  const save = vi.fn(); const user = userEvent.setup(); render(<TripForm busy={false} onSave={save}/>);
+  await user.type(screen.getByLabelText('Seyahat adı'), 'Londra');
+  await user.type(screen.getByLabelText('Hedef bütçe (isteğe bağlı)'), '750');
+  await user.selectOptions(screen.getByLabelText('Varsayılan para birimi'), 'GBP');
+  await user.click(screen.getByRole('button', { name: 'Seyahati oluştur' }));
+  expect(save).toHaveBeenCalledWith(expect.objectContaining({ title: 'Londra', totalBudget: 750, currency: 'GBP' }));
 });

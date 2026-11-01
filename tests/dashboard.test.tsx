@@ -15,6 +15,7 @@ vi.mock('../src/services/tripService', () => ({
   markPlaceVisited: mocks.mark, addPlace: mocks.addPlace, updateDestination: mocks.update, updatePlace: mocks.updatePlace,
   createTrip: vi.fn(), addDestination: vi.fn(),
 }));
+vi.mock('../src/components/ExpensePanel', () => ({ default: () => <div>Seyahat bütçesi</div> }));
 import Dashboard from '../src/components/Dashboard';
 import { ThemeProvider } from '../src/context/ThemeContext';
 beforeEach(() => {

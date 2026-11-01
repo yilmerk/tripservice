@@ -1,4 +1,5 @@
 import type { Timestamp } from 'firebase/firestore';
+import type { Currency } from './expense';
 
 export interface Hotel {
   name: string;
@@ -33,14 +34,17 @@ export interface Destination extends DestinationInput {
 }
 export interface TripInput {
   title: string;
+  totalBudget?: number;
+  currency?: Currency;
   description?: string;
   startDate?: string; // YYYY-MM-DD; local calendar date, not a UTC instant
   endDate?: string;
 }
 export interface Trip extends TripInput {
   id: string;
+  budgetCurrencyLocked?: boolean;
   destinations: Destination[];
   createdAt: Timestamp | null; // null while a server timestamp is pending
   updatedAt: Timestamp | null;
 }
-export type TripUpdate = Partial<TripInput>;
+export type TripUpdate = Partial<Pick<TripInput, 'title' | 'description' | 'startDate' | 'endDate'>>;

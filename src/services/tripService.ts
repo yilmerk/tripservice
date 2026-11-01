@@ -1,8 +1,10 @@
 import {
-  addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query,
+  addDoc, collection, doc, getDoc, getDocs, orderBy, query,
   onSnapshot, runTransaction, serverTimestamp, type DocumentData, type DocumentSnapshot,
 } from 'firebase/firestore';
 import { auth, db } from '../firebase';
+import { deleteTripWithExpenses } from './expenseService';
+import { isCurrency, toMinor } from '../utils/money';
 import type { Destination, DestinationInput, PlaceInput, Trip, TripInput, TripUpdate } from '../types/trip';
 
 export type { Destination, DestinationInput, Hotel, Place, PlaceCategory, PlaceInput, Trip, TripInput, TripUpdate } from '../types/trip';
@@ -31,6 +33,8 @@ function date(value: string | undefined) {
 }
 function validateTrip(input: TripInput) {
   required(input.title, 'Seyahat adı');
+  if (input.currency !== undefined && !isCurrency(input.currency)) throw new Error('Geçersiz para birimi.');
+  if (input.totalBudget !== undefined) toMinor(input.totalBudget, input.currency ?? 'EUR', true);
   date(input.startDate); date(input.endDate);
   if (input.startDate && input.endDate && input.startDate > input.endDate) throw new Error('Bitiş tarihi başlangıçtan önce olamaz.');
 }
@@ -62,9 +66,9 @@ function readTrip(snapshot: DocumentSnapshot<DocumentData>): Trip {
 
 export async function createTrip(userId: string, input: TripInput): Promise<string> {
   validateTrip(input);
-  const { title, description, startDate, endDate } = input;
+  const { title, description, startDate, endDate, totalBudget, currency } = input;
   const ref = await addDoc(tripsCollection(userId), {
-    ...clean({ title: title.trim(), description, startDate, endDate }),
+    ...clean({ title: title.trim(), description, startDate, endDate, totalBudget, currency }),
     destinations: [], createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
   });
   return ref.id;
@@ -89,8 +93,8 @@ export async function updateTrip(userId: string, tripId: string, input: TripUpda
   });
 }
 export async function deleteTrip(userId: string, tripId: string): Promise<void> {
-  // Embedded destinations/places disappear with this single document; no orphan collections.
-  await deleteDoc(tripRef(userId, tripId));
+  tripRef(userId, tripId);
+  await deleteTripWithExpenses(userId, tripId);
 }
 async function mutateDestinations(userId: string, tripId: string, mutate: (destinations: Destination[]) => void): Promise<void> {
   const ref = tripRef(userId, tripId);

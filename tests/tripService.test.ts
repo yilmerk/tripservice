@@ -22,6 +22,8 @@ vi.mock('firebase/firestore', () => {
     }),
   };
 });
+vi.mock('../src/services/expenseService', () => ({ deleteTripWithExpenses: vi.fn() }));
+import { deleteTripWithExpenses } from '../src/services/expenseService';
 import { addDestination, addPlace, createTrip, deleteTrip, getTrip, markPlaceVisited, updateTrip, updateDestination, updatePlace } from '../src/services/tripService';
 
 beforeEach(() => {
@@ -66,7 +68,7 @@ describe('trip service', () => {
   });
   it('deletes the trip document that contains all nested data', async () => {
     await deleteTrip('alice', 'trip-1');
-    expect(state.writes).toEqual([{ deleted: 'users/alice/trips/trip-1' }]);
+    expect(deleteTripWithExpenses).toHaveBeenCalledWith('alice', 'trip-1');
   });
 });
 

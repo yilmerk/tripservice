@@ -1,8 +1,74 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function supportedCurrency(currency) {
+      return currency in ['EUR','USD','TRY','GBP','CHF','CAD','AUD','JPY','PLN','CZK','SEK','NOK','DKK','AED'];
+    }
+    function ownsLedger(tripId) {
+      return signedIn() && get(/databases/$(database)/documents/trips/$(tripId)).data.ownerId == request.auth.uid;
+    }
+    function tripCurrency(data) { return data.get('currency', 'EUR'); }
+    function validTripBudget(tripId) {
+      let data = request.resource.data;
+      let ledgerPath = /databases/$(database)/documents/trips/$(tripId);
+      return supportedCurrency(tripCurrency(data))
+        && data.get('totalBudget', 0) is number && data.get('totalBudget', 0) >= 0 && data.get('totalBudget', 0) <= 1000000000000
+        && (!exists(ledgerPath) || get(ledgerPath).data.ownerId != request.auth.uid
+          || (get(ledgerPath).data.status == 'active'
+            && (!get(ledgerPath).data.hasExpenses || (tripCurrency(data) == get(ledgerPath).data.currency && data.get('budgetCurrencyLocked', false) == true))));
+    }
     match /users/{userId}/trips/{tripId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, delete: if signedIn() && request.auth.uid == userId;
+      allow create, update: if signedIn() && request.auth.uid == userId && validTripBudget(tripId);
+    }
+    // Ownership registry for the top-level expense collection. Existing trip
+    // documents stay in their original user-scoped location.
+    match /trips/{tripId} {
+      allow get: if signedIn() && (!exists(/databases/$(database)/documents/trips/$(tripId)) || resource.data.ownerId == request.auth.uid);
+      allow list, delete: if false;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['ownerId','currency','hasExpenses','status','createdAt'])
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.hasExpenses == false && request.resource.data.status == 'active'
+        && request.resource.data.createdAt == request.time
+        && existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)/trips/$(tripId))
+        && supportedCurrency(request.resource.data.currency)
+        && request.resource.data.currency == tripCurrency(getAfter(/databases/$(database)/documents/users/$(request.auth.uid)/trips/$(tripId)).data);
+      allow update: if ownsLedger(tripId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['currency','hasExpenses','status'])
+        && request.resource.data.hasExpenses is bool
+        && (!resource.data.hasExpenses || request.resource.data.hasExpenses)
+        && supportedCurrency(request.resource.data.currency)
+        && (!resource.data.hasExpenses || request.resource.data.currency == resource.data.currency)
+        && ((resource.data.status == 'active' && request.resource.data.status in ['active','deleting'])
+          || (resource.data.status == 'deleting' && request.resource.data.status in ['deleting','deleted']))
+        && (request.resource.data.status != 'active' || (
+          existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)/trips/$(tripId))
+          && request.resource.data.currency == tripCurrency(getAfter(/databases/$(database)/documents/users/$(request.auth.uid)/trips/$(tripId)).data)));
+      match /expenses/{expenseId} {
+        function validExpense() {
+          let data = request.resource.data;
+          let ledger = getAfter(/databases/$(database)/documents/trips/$(tripId)).data;
+          return data.keys().hasAll(['name','amountMinor','currency','date','category','exchangeRate','baseAmountMinor','baseCurrency','createdAt','updatedAt'])
+            && data.keys().hasOnly(['name','amountMinor','currency','date','category','exchangeRate','baseAmountMinor','baseCurrency','createdAt','updatedAt'])
+            && data.name is string && data.name.size() > 0 && data.name.size() <= 150
+            && data.amountMinor is int && data.amountMinor > 0 && data.amountMinor <= 1000000000000
+            && data.baseAmountMinor is int && data.baseAmountMinor >= 0 && data.baseAmountMinor <= 1000000000000
+            && supportedCurrency(data.currency) && data.baseCurrency == ledger.currency
+            && data.exchangeRate is number && data.exchangeRate > 0 && data.exchangeRate <= 1000000000
+            && (data.currency != data.baseCurrency || (data.exchangeRate == 1 && data.amountMinor == data.baseAmountMinor))
+            && data.date is string && data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+            && data.category in ['accommodation','transport','food','shopping','activities','other']
+            && data.updatedAt == request.time && ledger.status == 'active' && ledger.hasExpenses == true
+            && existsAfter(/databases/$(database)/documents/users/$(request.auth.uid)/trips/$(tripId))
+            && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)/trips/$(tripId)).data.get('budgetCurrencyLocked', false) == true
+            && data.baseCurrency == tripCurrency(getAfter(/databases/$(database)/documents/users/$(request.auth.uid)/trips/$(tripId)).data);
+        }
+        allow read, delete: if ownsLedger(tripId);
+        allow create: if ownsLedger(tripId) && validExpense() && request.resource.data.createdAt == request.time;
+        allow update: if ownsLedger(tripId) && validExpense() && request.resource.data.createdAt == resource.data.createdAt;
+      }
     }
   }
 }
