@@ -132,3 +132,18 @@ npx --yes firebase-tools@15 emulators:exec --project demo-rota --only firestore 
 ```
 
 Java 21 gerekir. GitHub Actions ayrıca bu emülatör testlerini çalıştırır: hesaplar arası erişim, sahte sahiplik, para birimi kilidi, geçersiz tutarlar ve silme sırasındaki yazmalar sınanır.
+
+
+## Giriş hatalarını tanılama
+
+Giriş ekranı Firebase'in özgün `auth/...` hata kodunu mesajın altında gösterir. E-posta/şifre hataları, kapatılmış hesap, etkinleştirilmemiş sağlayıcı, eksik Authentication kurulumu, geçersiz API anahtarı ve site/API kısıtlamaları farklı açıklamalarla gösterilir. Yeni veya bilinmeyen hata kodları da korunur; şifreler, ham API yanıtları ve istek gövdeleri arayüze veya konsola yazılmaz.
+
+`identitytoolkit.googleapis.com/.../accounts:signInWithPassword` isteğinin 400 dönmesi, tek başına nedenini belirlemez. Hata koduna göre ilgili Firebase projesinin Authentication sağlayıcısı, uygulama anahtarı veya hesap bilgileri kontrol edilmelidir. Firebase web yapılandırması aynı uygulamaya ait değerlerden oluşmalıdır. Firestore kuralları Authentication giriş isteğini yönetmez.
+
+Auth entegrasyon testleri gerçek Firebase SDK'sını yerel Auth Emulator'a bağlayarak giriş/çıkış, yanlış şifre sonrası yeniden deneme ve kayıt akışlarını doğrular:
+
+```sh
+npx --yes firebase-tools@15 emulators:exec --project demo-rota --only auth "npm run test:auth"
+```
+
+Bu testler üretim hesaplarını veya canlı Firebase projesinin ayarlarını değiştirmez. GitHub Actions, Auth ve Firestore Emulator kontrollerini birlikte çalıştırır.

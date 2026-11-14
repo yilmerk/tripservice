@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile, type User } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
+import { FirebaseError } from 'firebase/app';
+import { getAuthIssue } from '../utils/authErrors';
 
 type AuthContextValue = {
   user: User | null;
@@ -13,7 +15,7 @@ type AuthContextValue = {
 };
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 function configuredAuth() {
-  if (!auth) throw new Error('Firebase bağlantısı henüz yapılandırılmadı. .env.local dosyasına proje bilgilerini ekleyin.');
+  if (!auth) throw new FirebaseError('auth/missing-config', 'Firebase configuration is missing.');
   return auth;
 }
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -22,8 +24,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     if (!auth) { setLoading(false); return; }
-    return onAuthStateChanged(auth, current => { setUser(current); setLoading(false); }, () => {
-      setUser(null); setError('Oturum bilgisi alınamadı. Lütfen sayfayı yenileyin.'); setLoading(false);
+    return onAuthStateChanged(auth, current => { setUser(current); setError(null); setLoading(false); }, err => {
+      setUser(null); const issue = getAuthIssue(err);
+      setError(`${issue.message}${issue.code ? ` (Hata kodu: ${issue.code})` : ''}`); setLoading(false);
     });
   }, []);
   const value: AuthContextValue = {

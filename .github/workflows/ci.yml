@@ -42,4 +42,4 @@ jobs:
           distribution: temurin
           java-version: '21'
       - run: npm ci
-      - run: npx --yes firebase-tools@15 emulators:exec --project demo-rota --only firestore "npm run test:rules"
+      - run: npx --yes firebase-tools@15 emulators:exec --project demo-rota --only firestore,auth "npm run test:rules && npm run test:auth"
