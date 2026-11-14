@@ -13,7 +13,7 @@ vi.mock('../src/firebase', async () => {
   const app = initializeApp({ apiKey: 'demo-api-key', projectId: 'demo-rota', authDomain: 'demo-rota.firebaseapp.com' }, 'auth-integration');
   const auth = getAuth(app);
   connectAuthEmulator(auth, `http://${host}`, { disableWarnings: true });
-  return { app, auth, db: null, googleProvider: new GoogleAuthProvider() };
+  return { app, auth, db: null, googleProvider: new GoogleAuthProvider(), initializeFirebase: async () => undefined };
 });
 vi.mock('../src/components/Dashboard', async () => {
   const { useAuth } = await import('../src/context/AuthContext');
@@ -21,6 +21,7 @@ vi.mock('../src/components/Dashboard', async () => {
 });
 import { app, auth } from '../src/firebase';
 import App from '../src/App';
+import FirebaseBootstrap from '../src/components/FirebaseBootstrap';
 import { AuthProvider } from '../src/context/AuthContext';
 import { ThemeProvider } from '../src/context/ThemeContext';
 const email = `test-${Date.now()}@rota.example`;
@@ -29,7 +30,7 @@ beforeAll(async () => { await createUserWithEmailAndPassword(auth!, email, passw
 beforeEach(async () => { await signOut(auth!); });
 afterEach(cleanup);
 afterAll(async () => { await signOut(auth!); await deleteApp(app!); });
-function renderLogin() { return render(<ThemeProvider><AuthProvider><App/></AuthProvider></ThemeProvider>); }
+function renderLogin() { return render(<ThemeProvider><FirebaseBootstrap><AuthProvider><App/></AuthProvider></FirebaseBootstrap></ThemeProvider>); }
 it('logs in and out through the real Firebase SDK and auth observer', async () => {
   const user = userEvent.setup(); renderLogin();
   await user.type(await screen.findByLabelText('E-posta adresin'), email);

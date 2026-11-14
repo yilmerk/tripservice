@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { ArrowDown, ArrowRight, Check, Compass, Eye, EyeOff, Globe2, LoaderCircle, LockKeyhole, MapPin, Route } from 'lucide-react';
 import { getAuthIssue, type AuthIssue } from './utils/authErrors';
+import { configValue } from './utils/firebaseConfig';
 import { useAuth } from './context/AuthContext';
 import Dashboard from './components/Dashboard';
 import ThemeToggle from './components/ThemeToggle';
@@ -13,6 +14,8 @@ function LoginScreen() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<AuthIssue | null>(null);
   const isRegister = mode === 'register';
+  const projectId = configValue(import.meta.env.VITE_FIREBASE_PROJECT_ID);
+  const configurationError = error?.code && ['auth/invalid-api-key', 'auth/api-key-not-valid.-please-pass-a-valid-api-key.', 'auth/configuration-not-found', 'auth/app-not-authorized'].includes(error.code);
   async function run(action: () => Promise<void>) {
     setError(null); setPending(true);
     try { await action(); } catch (err) { setError(getAuthIssue(err)); } finally { setPending(false); }
@@ -41,7 +44,7 @@ function LoginScreen() {
         {isRegister && <label>Adın ve soyadın<input className="dark:bg-slate-950 dark:text-slate-100 dark:border-slate-700" name="name" autoComplete="name" placeholder="Ad Soyad" required maxLength={100}/></label>}
         <label>E-posta adresin<input className="dark:bg-slate-950 dark:text-slate-100 dark:border-slate-700" type="email" name="email" placeholder="merhaba@ornek.com" autoComplete="email" required/></label>
         <label>Şifren<div className="password-field"><input className="dark:bg-slate-950 dark:text-slate-100 dark:border-slate-700" name="password" type={showPassword ? 'text' : 'password'} placeholder={isRegister ? 'En az 6 karakter' : 'Şifreni gir'} autoComplete={isRegister ? 'new-password' : 'current-password'} minLength={isRegister ? 6 : undefined} required/><button type="button" aria-label={showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'} onClick={() => setShowPassword(!showPassword)}>{showPassword ? <EyeOff size={18}/> : <Eye size={18}/>}</button></div></label>
-        {(error || sessionError) && <div role="alert" className="error-message"><p>{error?.message ?? sessionError}</p>{error?.code && <p className="auth-error-code">Hata kodu: <code>{error.code}</code></p>}</div>}
+        {(error || sessionError) && <div role="alert" className="error-message"><p>{error?.message ?? sessionError}</p>{error?.code && <p className="auth-error-code">Hata kodu: <code>{error.code}</code></p>}{configurationError && projectId && <p className="auth-error-code">Firebase projesi: <code>{projectId}</code></p>}</div>}
         <button className="primary-button" disabled={pending} type="submit">{pending ? <><LoaderCircle className="animate-spin" size={18}/> İşlem yapılıyor…</> : <>{isRegister ? 'Hesabımı oluştur' : 'Yolculuğa devam et'}<ArrowRight size={18}/></>}</button>
       </form>
       <p className="switch-mode">{isRegister ? 'Zaten bir hesabın var mı?' : 'Henüz bir hesabın yok mu?'} <button disabled={pending} onClick={() => { setMode(isRegister ? 'login' : 'register'); setError(null); }}>{isRegister ? 'Giriş yap' : 'Ücretsiz hesap oluştur'}</button></p>

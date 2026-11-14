@@ -147,3 +147,12 @@ npx --yes firebase-tools@15 emulators:exec --project demo-rota --only auth "npm 
 ```
 
 Bu testler üretim hesaplarını veya canlı Firebase projesinin ayarlarını değiştirmez. GitHub Actions, Auth ve Firestore Emulator kontrollerini birlikte çalıştırır.
+
+
+### Firebase web yapılandırmasının otomatik doğrulanması
+
+Uygulama Auth/Firestore bileşenlerini açmadan önce `VITE_FIREBASE_PROJECT_ID` ile belirlenen projenin resmî `https://<projectId>.firebaseapp.com/__/firebase/init.json` adresini kontrol eder. Yanıttaki proje kimliği ve resmî Auth alanı eşleşiyor, anahtar biçimi geçerliyse Auth ve Firestore aynı güncel web API anahtarıyla başlatılır. App ID ve mevcut proje ayarları korunur. Bu yöntem, Vercel derlemesine yanlış/eski anahtar alınmışken resmî Hosting yapılandırmasının güncel olduğu durumda anahtarı otomatik düzeltir.
+
+Kontrol 1,8 saniye ile sınırlıdır; ağ hatası veya projenin Hosting yapılandırması bulunamaması durumunda mevcut ortam ayarları kullanılır. Farklı projenin ayarları kabul edilmez. Kopyalanmış değerlerdeki baş/son boşluklar ve çevreleyen tırnaklar temizlenir. Hatalı anahtar yüzünden SDK başlatılamazsa boş sayfa yerine açıklama ve yeniden deneme gösterilir. Şifre veya oturum bilgisi bu genel yapılandırma adresine gönderilmez.
+
+Bu otomatik onarım, Firebase Console'da silinmiş bir anahtarı yeniden oluşturmaz. Resmî Hosting yapılandırması da geçersiz/erişilemezse doğru `VITE_FIREBASE_API_KEY` değeri Vercel hesabında güncellenmelidir.

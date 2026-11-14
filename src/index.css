@@ -66,3 +66,5 @@ body, .form-panel, .planner-shell, .planner-sidebar, .planner-topbar, .info-card
   body, .form-panel, .planner-shell, .planner-sidebar, .planner-topbar, .info-card, .place-card, .planner-dialog, input, select, textarea, .google-button, .outline-button, .theme-toggle { transition: none; }
 }
 .error-message p{margin:0}.error-message .auth-error-code{margin-top:8px;font-size:11px;overflow-wrap:anywhere;opacity:.9}.auth-error-code code{user-select:all}
+
+.firebase-startup-error{width:min(440px,calc(100vw - 40px));line-height:1.7}.firebase-startup-error>.outline-button{margin-top:16px}
